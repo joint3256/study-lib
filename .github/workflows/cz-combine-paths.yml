@@ -1,0 +1,30 @@
+name: cz-combine paths
+
+on:
+  push:
+    paths:
+      - '技能/cz-combine/**'
+      - 'tests/test_cz_combine_paths.py'
+      - '.github/workflows/cz-combine-paths.yml'
+  pull_request:
+    paths:
+      - '技能/cz-combine/**'
+      - 'tests/test_cz_combine_paths.py'
+      - '.github/workflows/cz-combine-paths.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  paths:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -B -m unittest discover -s tests -p test_cz_combine_paths.py -v
+      - run: python -B 技能/cz-combine/scripts/check_library.py

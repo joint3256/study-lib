@@ -9,6 +9,10 @@ description: "题目提取专用技能：把试卷/题目照片里的印刷题�
 **只做提取，不写答案、不写知识点、不写思路、不写口播**——即使一眼看得出答案也不写；
 讲解一律交给 `cz-combine`（初中全科）等讲解技能。
 
+依赖：Python 3、`python-docx`、`Pillow`；重画配图另需 `numpy`、`matplotlib`；PDF/页面转换需 `soffice`、`pdftoppm`。
+
+中文渲染还需可用的中文字体（如宋体、黑体或 Noto CJK）。Linux 可安装 `fonts-noto-cjk`；转换退出码为 0 不能代替逐页检查，遇到缺字必须先补字体再重转。
+
 ## 一、工作流程
 
 1. **确认范围**：本次只提取。若用户同时要讲解，先只交付干净原题，讲解另用讲解技能。
@@ -21,14 +25,17 @@ description: "题目提取专用技能：把试卷/题目照片里的印刷题�
    边长比例、交点位置尽量与原图一致），印刷的虚线/阴影/直角/角弧/刻度/点字母画全，
    手绘内容一律不画；配图存工作目录 `figs/`，命名 qNN.png。
 6. **组装 Word**：写 `extract.json`（结构见 `scripts/make_clean_doc.py` 顶部注释），运行
-   `python3 scripts/make_clean_doc.py extract.json`。
+   `python3 scripts/make_clean_doc.py extract.json`。检查器与生成器共用输入校验：
+   至少一道题，题号支持 `1`、`"1"`、`"1."` 并统一排成 `1.`；图片相对路径以 JSON 所在目录为准。
+   缺题干、未知块类型、重复题号、损坏图片均报错，修正后再生成。
 7. **转 PDF 与页面图片**：运行
-   `python3 scripts/doc_to_outputs.py <word文档>`，得到 `_pdf/*.pdf` 与 `pages/page-N.png`。
+   `python3 scripts/doc_to_outputs.py <word文档>`，在新建的 `<文档名>-<随机后缀>/` 中得到同名 PDF 与 `pages/page-N.png`。
+   每次运行保留旧成果；以脚本打印的本次路径为准，失败则停止交付，不从旧目录挑选替代 PDF。
 8. **最严格逐字逐图核对（强制交付门，必做）**：严格按
    `references/最严格核对清单.md` 执行，不靠印象、不凭记忆——
    1. 先跑 `python3 scripts/verify_extract.py extract.json`：**ERR 清零**、CHECK
-      逐条调出原照片确认并记录；再跑 Word 结构审计 `audit.py audit <成品.docx>`
-      到 0 错误；
+      逐条调出原照片确认并记录；再跑随技能提供的
+      `python scripts/verify_docx.py extract.json <成品.docx>`，确认文字、选项顺序、嵌入图片与 JSON 一致且无结构错误；
    2. 然后**逐字**（题号/题干/选项/小问/分值/空格/标点/空位）、**逐图**（点位置/
       线段连接/交点/虚实线/直角角弧/比例/阴影/并列子图）、**逐页**（PDF 渲染、无
       手写、不多加不减少、跨页完整）三关，与原照片并排逐项打勾并记录；
@@ -47,7 +54,7 @@ description: "题目提取专用技能：把试卷/题目照片里的印刷题�
 
 - **tiqu-extractor（本技能）＝还原**：干净原题 Word/PDF/PNG，不含任何讲解。
 - **cz-combine＝讲解**：在干净原题基础上做知识点、思路、规范解答、快解、易错、
-  举一反三与可照念口播。需要时 cz-combine 直接取用本技能产出的干净题与配图。
+  答案、可照念口播与第 8 板块师生互动对白（不另出新题）。需要时 cz-combine 直接取用本技能产出的干净题与配图。
 
 ## 参考资源（用到时再读）
 - `references/最严格核对清单.md`：交付前强制的逐字/逐图/逐页核对门与交付记录表。
@@ -57,4 +64,5 @@ description: "题目提取专用技能：把试卷/题目照片里的印刷题�
 - `scripts/make_clean_doc.py`：extract.json → 干净 Word。
 - `scripts/verify_extract.py`：extract.json 自动机检（文件齐全、题号、选项数量、
   括号误填、疑似空格、填空空位、配图可读与尺寸），用法 `python3 verify_extract.py extract.json`。
+- `scripts/verify_docx.py`：只读核对 JSON 与 Word，异常返回非零退出码；不代替原照片与逐页排版检查，不依赖外部 Word 技能。
 - `scripts/doc_to_outputs.py`：Word → PDF ＋ 每页干净页面 PNG。

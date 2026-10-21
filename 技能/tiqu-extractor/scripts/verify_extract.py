@@ -7,10 +7,9 @@
 核对仍必须按 references/最严格核对清单.md 逐项完成。
 
 检查分三级：
-  ERR   可确定的错误，必须改（文件缺失、JSON 非法、题号断档/重复、
-        括号内被填入答案、选项数量异常等）；
-  CHECK 疑似项，必须调出原照片逐处确认并记录结果（最常见：中文/符号
-        两侧被多加了半角空格、数字与单位间空格、运算符两侧空格）；
+  ERR   可确定的错误，必须改（文件缺失、JSON 非法、题号重复等）；
+  CHECK 疑似项，必须调出原照片逐处确认并记录结果（题号断档、括号内
+        文字、选项数量异常，以及中文/符号、数字与单位、运算符两侧空格）；
   INFO  计数与配图尺寸，用来和原卷逐项对数。
 
 用法：python3 verify_extract.py extract.json
@@ -19,7 +18,7 @@
 import sys
 import os
 import re
-import json
+from extract_schema import load_extract, question_number
 
 # 数学 / 中文符号集合（出现空格紧贴时必报）
 MATH_SYMS = set("△∠≅∽≈≠∥⊥≥≤√π°∶·×±∓∈∵∴∝∪∩∅⌒⊙⊥")
@@ -77,11 +76,10 @@ def main(path):
     errs, checks, info = [], [], []
 
     try:
-        with open(path, encoding="utf-8") as f:
-            data = json.load(f)
-    except Exception as e:  # JSON 本身非法
-        print("FATAL: 无法解析 JSON：%s" % e)
-        return 2
+        data = load_extract(path)
+    except (OSError, ValueError) as e:
+        print("ERR：输入校验失败，禁止交付：\n%s" % e)
+        return 1
 
     root = os.path.dirname(os.path.abspath(path))
     title = data.get("title", "").strip()
@@ -106,7 +104,7 @@ def main(path):
             no = b.get("no")
             text = b.get("text", "")
             try:
-                qnos.append(int(str(no)))
+                qnos.append(question_number(no))
             except (TypeError, ValueError):
                 errs.append("块#%d 题目缺少数字题号 no=%r" % (pos, no))
             loc = "题%s" % no
@@ -120,6 +118,10 @@ def main(path):
                 if len(opts) != 4:
                     checks.append("%s：选项数量为 %d（非常见的4个），对照原图确认"
                                   % (loc, len(opts)))
+                for item in opts:
+                    body = OPT_PREFIX_RE.sub("", item)
+                    for (_, _, _, why) in classify_spaces(body):
+                        checks.append("%s 选项「%s」：%s" % (loc, item, why))
             # 括号内文字：分值（数字+分）属印刷原文直接放行；其余须对照
             # 原图确认是"印刷注释"还是"误入的手写答案"（脚本无法判定，故为 CHECK）
             for inner in paren_filled(text):
@@ -156,8 +158,9 @@ def main(path):
                     with Image.open(p) as im:
                         wh = "，尺寸 %dx%d，宽高比 %.3f" % (
                             im.width, im.height, im.width / im.height)
-                except Exception:
-                    pass
+                        im.load()
+                except Exception as exc:
+                    errs.append("配图无法读取：%s（%s）" % (p, type(exc).__name__))
                 info.append("配图 %s（%d KB%s）" % (
                     os.path.basename(p), size // 1024, wh))
         elif typ == "para":

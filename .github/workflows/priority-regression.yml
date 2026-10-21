@@ -1,0 +1,30 @@
+name: Priority reliability regression
+on:
+  push:
+  pull_request:
+jobs:
+  regression:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Python dependencies
+        run: python -m pip install python-docx Pillow numpy matplotlib
+      - name: Install Linux conversion tools
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libreoffice-writer poppler-utils fonts-noto-cjk
+      - name: Run regressions
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+          PYTHONUTF8: '1'
+          PYTHONIOENCODING: utf-8
+        run: python -m unittest discover -s tests -v
+      - name: Check exam evidence
+        run: python scripts/check_exam_evidence.py
+      - name: Check local library links and indexes
+        run: python -B scripts/check_repository_links.py

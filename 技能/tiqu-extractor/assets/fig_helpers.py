@@ -94,12 +94,17 @@ def rmark(ax, p, u, v, s=0.22, c=BLK):
 
 
 def ang(ax, p, q1, q2, r=0.4, c=BLK, lw=1.2):
-    """在 p 处画角弧，角由射线 p→q1、p→q2 张成。"""
+    """在 p 处画两射线之间不超过 180° 的小角弧。"""
     p = np.array(p, float)
+    if np.array_equal(p, q1) or np.array_equal(p, q2):
+        raise ValueError("角的两条射线必须由不同于顶点的点确定")
     a1 = math.degrees(math.atan2(q1[1] - p[1], q1[0] - p[0]))
     a2 = math.degrees(math.atan2(q2[1] - p[1], q2[0] - p[0]))
-    ax.add_patch(Arc(p, 2 * r, 2 * r, angle=0, theta1=min(a1, a2),
-                     theta2=max(a1, a2), lw=lw, color=c, zorder=3))
+    sweep = (a2 - a1) % 360
+    start = a1 if sweep <= 180 else a2
+    sweep = min(sweep, 360 - sweep)
+    ax.add_patch(Arc(p, 2 * r, 2 * r, angle=0, theta1=start,
+                     theta2=start + sweep, lw=lw, color=c, zorder=3))
 
 
 def tick(ax, p, u, v, s=0.12, c=BLK):

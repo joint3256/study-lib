@@ -2,7 +2,11 @@ import copy
 from decimal import Decimal, localcontext
 from fractions import Fraction
 import importlib.util
+import json
+import os
 from pathlib import Path
+import subprocess
+import sys
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -65,6 +69,16 @@ class MathExamples(unittest.TestCase):
 
 
 class EvidenceTests(unittest.TestCase):
+    def test_cli_json_on_non_utf8_console(self):
+        # 重现 Windows 默认输出代码页无法表示中文时的 CLI 失败。
+        env = dict(os.environ, PYTHONIOENCODING='ascii:strict', PYTHONUTF8='0')
+        result = subprocess.run([sys.executable, '-B', str(ROOT / 'scripts/check_exam_evidence.py')],
+                                env=env, capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads(result.stdout)
+        self.assertEqual(report['候选记录总数'], 380)
+        self.assertEqual(report['已核实记录'], 0)
+
     def record(self, **changes):
         r=dict(subject='数学',year=2022,question=1,topic='有理数',status='已核实',
                evidence='题面 https://example.org/paper.pdf 第1页第1题；答案 https://example.org/key.pdf 第2页第1题；2026-10-21')

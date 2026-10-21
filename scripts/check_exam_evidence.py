@@ -89,7 +89,8 @@ def summarize(records):
 def main():
     directory = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(__file__).resolve().parents[1] / '真题考点/天津'
     try:
-        print(json.dumps(summarize(read_records(directory)), ensure_ascii=False, indent=2))
+        # JSON 转义可在 Windows 非 UTF-8 控制台中无损传输中文字段与内容。
+        print(json.dumps(summarize(read_records(directory)), ensure_ascii=True, indent=2))
     except (OSError, ValueError, KeyError) as exc:
         sys.exit('证据检查失败：%s' % exc)
 

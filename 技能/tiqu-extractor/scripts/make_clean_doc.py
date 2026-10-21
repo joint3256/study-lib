@@ -26,8 +26,8 @@ block 类型：section 大题标题
 用法：python3 make_clean_doc.py extract.json [out.docx]
 """
 import sys
-import json
 import os
+from extract_schema import load_extract
 from docx import Document
 from docx.shared import Pt, Cm
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -73,8 +73,7 @@ def render_opts(doc, items):
 
 
 def main(json_path, out_path=None):
-    with open(json_path, encoding="utf-8") as f:
-        data = json.load(f)
+    data = load_extract(json_path)
     doc = Document()
     s = doc.sections[0]
     s.page_width, s.page_height = Cm(21.0), Cm(29.7)
@@ -127,4 +126,7 @@ if __name__ == "__main__":
     a = sys.argv[1:]
     if not a:
         sys.exit("usage: make_clean_doc.py extract.json [out.docx]")
-    main(a[0], a[1] if len(a) > 1 else None)
+    try:
+        main(a[0], a[1] if len(a) > 1 else None)
+    except (OSError, ValueError) as exc:
+        sys.exit("生成失败：%s" % exc)

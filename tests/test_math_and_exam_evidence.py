@@ -108,7 +108,7 @@ class EvidenceTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         report = json.loads(result.stdout)
         self.assertEqual(report['候选记录总数'], 380)
-        self.assertEqual(report['已核实记录'], 29)
+        self.assertEqual(report['已核实记录'], 51)
 
     def record(self, **changes):
         r=dict(subject='数学',year=2022,question=1,topic='有理数',status='已核实',
@@ -196,12 +196,12 @@ class EvidenceTests(unittest.TestCase):
         records=evidence.read_records(ROOT/'真题考点/天津')
         result=evidence.summarize(records)
         self.assertEqual(result['候选记录总数'],380)
-        self.assertEqual(result['已核实记录'],29)
-        self.assertEqual(result['待核实记录'],351)
+        self.assertEqual(result['已核实记录'],51)
+        self.assertEqual(result['待核实记录'],329)
         self.assertEqual(result['其中原推断记录'],0)
-        self.assertEqual(result['已核实来源类型'],{'第三方解析版':3, '第三方原卷转载':26})
+        self.assertEqual(result['已核实来源类型'],{'第三方解析版':3, '第三方原卷转载':48})
         verified={(r['subject'],r['year'],r['question']) for r in records if r['status']=='已核实'}
-        self.assertEqual(verified,{('数学',2022,n) for n in (12,14,17)}|{('化学',2024,n) for n in range(1,27)})
+        self.assertEqual(verified,{('数学',2022,n) for n in range(1,26)}|{('化学',2024,n) for n in range(1,27)})
         self.assertEqual(sum(x['候选记录'] for x in result['候选记录核验进度']),380)
         for subject in evidence.SUBJECTS:
             text=(ROOT/'真题考点/天津'/(subject+'.md')).read_text(encoding='utf-8')

@@ -85,6 +85,21 @@ class MathExamples(unittest.TestCase):
 
 
 class EvidenceTests(unittest.TestCase):
+    def test_chemistry_2024_question_types_and_section_scores(self):
+        # 扫描卷第1–4图：第二组选择题可有1或2个正确项，不能一律标多选。
+        rows = [r for r in evidence.read_records(ROOT/'真题考点/天津')
+                if r['subject'] == '化学' and r['year'] == 2024]
+        self.assertEqual([r['question'] for r in rows], list(range(1, 27)))
+        self.assertEqual([r['question_type'] for r in rows[:10]], ['选择单选']*10)
+        self.assertEqual([r['question_type'] for r in rows[10:15]], ['不定项选择']*5)
+        scores = [int(r['score']) for r in rows]
+        self.assertEqual(sum(scores[:15]), 30)
+        self.assertEqual(sum(scores[15:]), 70)
+        self.assertEqual(sum(scores[15:18]), 19)
+        self.assertEqual(sum(scores[18:21]), 18)
+        self.assertEqual(sum(scores[21:24]), 23)
+        self.assertEqual(sum(scores[24:]), 10)
+
     def test_cli_json_on_non_utf8_console(self):
         # 重现 Windows 默认输出代码页无法表示中文时的 CLI 失败。
         env = dict(os.environ, PYTHONIOENCODING='ascii:strict', PYTHONUTF8='0')
@@ -93,7 +108,7 @@ class EvidenceTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         report = json.loads(result.stdout)
         self.assertEqual(report['候选记录总数'], 380)
-        self.assertEqual(report['已核实记录'], 13)
+        self.assertEqual(report['已核实记录'], 29)
 
     def record(self, **changes):
         r=dict(subject='数学',year=2022,question=1,topic='有理数',status='已核实',
@@ -181,12 +196,12 @@ class EvidenceTests(unittest.TestCase):
         records=evidence.read_records(ROOT/'真题考点/天津')
         result=evidence.summarize(records)
         self.assertEqual(result['候选记录总数'],380)
-        self.assertEqual(result['已核实记录'],13)
-        self.assertEqual(result['待核实记录'],367)
+        self.assertEqual(result['已核实记录'],29)
+        self.assertEqual(result['待核实记录'],351)
         self.assertEqual(result['其中原推断记录'],0)
-        self.assertEqual(result['已核实来源类型'],{'第三方解析版':3, '第三方原卷转载':10})
+        self.assertEqual(result['已核实来源类型'],{'第三方解析版':3, '第三方原卷转载':26})
         verified={(r['subject'],r['year'],r['question']) for r in records if r['status']=='已核实'}
-        self.assertEqual(verified,{('数学',2022,n) for n in (12,14,17)}|{('化学',2024,n) for n in range(1,11)})
+        self.assertEqual(verified,{('数学',2022,n) for n in (12,14,17)}|{('化学',2024,n) for n in range(1,27)})
         self.assertEqual(sum(x['候选记录'] for x in result['候选记录核验进度']),380)
         for subject in evidence.SUBJECTS:
             text=(ROOT/'真题考点/天津'/(subject+'.md')).read_text(encoding='utf-8')

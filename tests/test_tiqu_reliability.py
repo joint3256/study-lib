@@ -111,7 +111,10 @@ class InputTests(unittest.TestCase):
         self.data['blocks'].append({'type': 'image', 'path': '图.png', 'width_cm': 4})
         self.save(self.data)
         normalized = load_extract(self.input)
-        self.assertEqual(normalized['blocks'][1]['path'], str(self.root / '图.png'))
+        normalized_image = Path(normalized['blocks'][1]['path'])
+        self.assertTrue(normalized_image.is_absolute())
+        # Windows 临时目录可使用 8.3 短名；核对文件身份，而非路径字符串的拼写。
+        self.assertTrue(normalized_image.samefile(self.root / '图.png'))
         with contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(verify.main(str(self.input)), 0)
             render.main(str(self.input))

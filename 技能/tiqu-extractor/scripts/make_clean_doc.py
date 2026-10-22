@@ -26,7 +26,7 @@ block 类型：section 大题标题
 用法：python3 make_clean_doc.py extract.json [out.docx]
 """
 import sys
-import os
+from pathlib import Path
 from extract_schema import load_extract
 from docx import Document
 from docx.shared import Pt, Cm
@@ -74,6 +74,14 @@ def render_opts(doc, items):
 
 def main(json_path, out_path=None):
     data = load_extract(json_path)
+    out = Path(out_path) if out_path else Path(json_path).with_suffix('.docx')
+    inputs = [Path(json_path)] + [Path(block['path']) for block in data['blocks']
+                                 if block['type'] == 'image']
+    # Compare resolved paths and file identity: a .docx alias can still be an input.
+    # Validate before constructing/saving the document; preserve normal regeneration.
+    for source in inputs:
+        if out.resolve() == source.resolve() or (out.exists() and out.samefile(source)):
+            raise ValueError('输出文件不能覆盖输入 JSON 或配图：%s' % source)
     doc = Document()
     s = doc.sections[0]
     s.page_width, s.page_height = Cm(21.0), Cm(29.7)
@@ -117,7 +125,6 @@ def main(json_path, out_path=None):
         elif typ == "blank":
             doc.add_paragraph()
 
-    out = out_path or (os.path.splitext(json_path)[0] + ".docx")
     doc.save(out)
     print("saved:", out)
 

@@ -17,6 +17,83 @@ def digest(data):
     return hashlib.sha256(data).hexdigest()
 
 
+def on_off(element):
+    """OOXML 开关：缺省为开启；显式 0/false/off 为关闭。"""
+    value = element.get(qn("w:val"), "true")
+    if value in ("1", "true", "on"):
+        return True
+    if value in ("0", "false", "off"):
+        return False
+    raise ValueError("隐藏属性的开关值无效：" + value)
+
+
+def visibility_value(properties, name):
+    if properties is None:
+        return None
+    nodes = properties.findall(qn("w:" + name))
+    if len(nodes) > 1:
+        raise ValueError("隐藏属性重复：" + name)
+    return on_off(nodes[0]) if nodes else None
+
+
+def check_body_visibility(doc):
+    """核对直接格式及普通段落/字符样式的隐藏属性，不实现完整布局引擎。"""
+    body = doc.element.body
+    if body.xpath('.//w:ins | .//w:del'):
+        raise ValueError("正文含修订，请先明确最终可见内容")
+    # 包含段落标记等直接格式；不能仅因存在一个关闭的开关而拒绝。
+    if any(on_off(node) for node in body.xpath('.//w:vanish | .//w:webHidden')):
+        raise ValueError("正文含隐藏文字，请先明确最终可见内容")
+    style_elements = doc.styles.element.findall(qn("w:style"))
+    styles = {style.get(qn("w:styleId")): style for style in style_elements}
+    defaults = {style.get(qn("w:type")): style.get(qn("w:styleId"))
+                for style in style_elements
+                if style.get(qn("w:default")) in ("1", "true", "on")}
+    default_properties = doc.styles.element.find('./' + qn('w:docDefaults') +
+                                                 '/' + qn('w:rPrDefault') + '/' + qn('w:rPr'))
+    chains = {}
+
+    def chain(style_id):
+        if style_id not in chains:
+            result, seen = [], set()
+            current = style_id
+            while current in styles:
+                if current in seen:
+                    raise ValueError("样式继承存在循环：" + str(current))
+                seen.add(current)
+                style = styles[current]
+                result.append(style.find(qn("w:rPr")))
+                base = style.find(qn("w:basedOn"))
+                current = base.get(qn("w:val")) if base is not None else None
+            chains[style_id] = result[::-1]
+        return chains[style_id]
+
+    for paragraph in body.xpath('.//w:p'):
+        pstyle = paragraph.xpath('./w:pPr/w:pStyle/@w:val')
+        pchain = chain(pstyle[0] if pstyle else defaults.get("paragraph"))
+        for run in paragraph.xpath('./w:r | ./w:hyperlink/w:r'):
+            properties = run.find(qn("w:rPr"))
+            rstyle = run.xpath('./w:rPr/w:rStyle/@w:val')
+            rchain = chain(rstyle[0] if rstyle else defaults.get("character"))
+            for name in ("vanish", "webHidden"):
+                state = visibility_value(properties, name)
+                if state is None:
+                    state = visibility_value(default_properties, name) or False
+                    for inherited in pchain + rchain:
+                        value = visibility_value(inherited, name)
+                        # vanish 在样式中是切换属性；直接格式则是绝对值。
+                        if value is not None:
+                            state = (not state if value else state) if name == "vanish" else value
+                if state:
+                    raise ValueError("正文样式使文字隐藏，请先明确最终可见内容")
+
+
+def reject_native_equations(element):
+    # python-docx 的 paragraph.text / cell.text 不包含 m:oMath，必须显式拒绝。
+    if element.xpath('.//m:oMath | .//m:oMathPara'):
+        raise ValueError("发现 JSON 和生成器未支持的 Word 公式，不能按普通文字核对")
+
+
 def expected_items(data):
     items = [("文字", data["title"])]
     for block in data["blocks"]:
@@ -74,10 +151,11 @@ def verify(json_path, docx_path):
     try:
         expected = expected_items(load_extract(json_path))
         doc = Document(docx_path)
-        if doc.element.body.xpath('.//w:ins | .//w:del | .//w:vanish | .//w:webHidden'):
-            raise ValueError("正文含修订或隐藏文字，请先明确最终可见内容")
+        reject_native_equations(doc.element.body)
+        check_body_visibility(doc)
         for part in doc.part.related_parts.values():
             if str(part.partname).startswith(("/word/header", "/word/footer")):
+                reject_native_equations(part.element)
                 if part.element.xpath('.//w:drawing | .//w:pict') or any(
                         node.text and node.text.strip() for node in part.element.xpath('.//w:t')):
                     raise ValueError("发现 JSON 未提供的页眉或页脚内容")

@@ -8,7 +8,7 @@
 
 检查分三级：
   ERR   可确定的错误，必须改（文件缺失、JSON 非法、题号重复等）；
-  CHECK 疑似项，必须调出原照片逐处确认并记录结果（题号断档、括号内
+  CHECK 疑似项，必须调出原照片逐处确认并记录结果（题号断档或乱序、括号内
         文字、选项数量异常，以及中文/符号、数字与单位、运算符两侧空格）；
   INFO  计数与配图尺寸，用来和原卷逐项对数。
 
@@ -18,6 +18,7 @@
 import sys
 import os
 import re
+from collections import Counter
 from extract_schema import load_extract, question_number
 
 # 数学 / 中文符号集合（出现空格紧贴时必报）
@@ -172,17 +173,38 @@ def main(path):
                 snippet = text[max(0, i - 6):i + 7]
                 checks.append("小问/段落：%s → …%s…" % (why, snippet))
 
-    # 题号连续性（全局应 1..N 不重不漏；若原卷分科编号则人工确认）
+    # 按实际题目数检查，不枚举 1..最大题号，避免识别出的异常大题号耗尽内存。
     if qnos:
-        dup = sorted({x for x in qnos if qnos.count(x) > 1})
-        for x in dup:
+        counts = Counter(qnos)
+        ordered = sorted(counts)
+        for x in ordered:
+            if counts[x] <= 1:
+                continue
             errs.append("题号 %d 重复出现" % x)
-        expect = set(range(1, max(qnos) + 1))
-        missing = sorted(expect - set(qnos))
-        if missing:
-            checks.append("题号序列缺少 %s（若原卷按大题分别编号请确认，否则是漏题）"
-                          % missing)
-        info.append("题目总数 %d（题号 %d–%d）" % (len(qnos), min(qnos), max(qnos)))
+        previous = missing_count = gap_count = 0
+        preview = []
+        for number in ordered:
+            if number > previous + 1:
+                start, end = previous + 1, number - 1
+                missing_count += end - start + 1
+                gap_count += 1
+                if len(preview) < 8:
+                    preview.append(str(start) if start == end else "%d–%d" % (start, end))
+            previous = number
+        if missing_count:
+            description = "、".join(preview)
+            if gap_count > len(preview):
+                description += "…（仅展示前8段）"
+            checks.append("题号序列缺少 %s，共 %d 个（若原卷按大题分别编号请确认，否则可能漏题）"
+                          % (description, missing_count))
+        # 只提示第一处倒序，保留原文及分区；不能擅自重排题目和配图。
+        for index, (left, right) in enumerate(zip(qnos, qnos[1:]), 1):
+            if right < left:
+                checks.append("题号顺序异常：第 %d 道至第 %d 道的题号为 %d→%d；"
+                              "请对照原卷核对页序或分区编号（未自动重排）"
+                              % (index, index + 1, left, right))
+                break
+        info.append("题目总数 %d（题号 %d–%d）" % (len(qnos), ordered[0], ordered[-1]))
 
     info.append("大题分区 %d 个：%s" % (len(sections), " / ".join(sections)))
     info.append("配图 %d 张；选项块 %d 个；小问/段落 %d 段"

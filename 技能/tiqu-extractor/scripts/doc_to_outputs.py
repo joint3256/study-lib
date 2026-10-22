@@ -77,6 +77,8 @@ def main(docx, outdir=None, dpi=150):
 
 
 if __name__ == "__main__":
+    from console_output import configure_stdout
+    configure_stdout()
     args = sys.argv[1:]
     if not args:
         sys.exit("usage: doc_to_outputs.py file.docx [outdir] [dpi]")

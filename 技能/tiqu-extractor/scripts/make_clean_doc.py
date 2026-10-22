@@ -130,6 +130,8 @@ def main(json_path, out_path=None):
 
 
 if __name__ == "__main__":
+    from console_output import configure_stdout
+    configure_stdout()
     a = sys.argv[1:]
     if not a:
         sys.exit("usage: make_clean_doc.py extract.json [out.docx]")

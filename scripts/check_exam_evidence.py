@@ -16,6 +16,8 @@ SUBJECTS = ('数学', '物理', '化学')
 YEARS = tuple(range(2022, 2027))
 STATUSES = ('已核实', '待核实', '推断待核实')
 SOURCE_TYPES = ('官方原卷', '第三方原卷转载', '第三方解析版')
+RECORD_HEADERS = ('题号', '候选考点或原记录', '候选题型', '候选分值',
+                  '难度估计', '核验状态', '题面及答案证据')
 
 
 def read_records(directory):
@@ -53,6 +55,9 @@ def read_records(directory):
             if fields[0] == '题号':
                 if has_header or year_counts[year]:
                     raise ValueError('%s 重复表头：%s' % (path, year))
+                if tuple(fields) != RECORD_HEADERS:
+                    raise ValueError('%s %s 年表头名称或顺序错误：应为 %s，实际为 %s'
+                                     % (path, year, RECORD_HEADERS, tuple(fields)))
                 has_header = True
                 continue
             if all(re.fullmatch(r':?-{3,}:?', field) for field in fields):

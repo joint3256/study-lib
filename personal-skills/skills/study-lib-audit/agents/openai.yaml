@@ -1,0 +1,13 @@
+interface:
+  display_name: 资料库可靠性核验
+  short_description: 核验个人资料库的路径、提取结果、真题证据与回归检查，保留可复查依据
+  default_prompt: 用 $study-lib-audit 检查 study-lib 的当前修改，复现问题、核实依据并按已有授权修复验证。
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

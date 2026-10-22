@@ -1,0 +1,256 @@
+{
+  "format_version": 1,
+  "prepared_date_utc": "2026-10-22",
+  "purpose": "Public backup of current personal and project skills; historical originals listed separately.",
+  "skills": [
+    {
+      "id": "study-lib-audit",
+      "status": "current_complete_folder_backup",
+      "source_kind": "installed_personal_skill",
+      "source_repository": null,
+      "source_path": "skill-6ad85a869ccc8191be09b31b728046a8",
+      "source_commit": "80eed355997008e28ed042f24ecde50ac1c6e575",
+      "files": [
+        {
+          "path": "skills/study-lib-audit/SKILL.md",
+          "size_bytes": 5901,
+          "sha256": "1c25f003a7890f9426ffd1591d734f2360c2862ae7fc5315d1be42fc0f6537c1"
+        },
+        {
+          "path": "skills/study-lib-audit/agents/openai.yaml",
+          "size_bytes": 462,
+          "sha256": "dd8958b2c0857356015fbbab84846f59df76d3fb8896fdd6f14ff9e2b1b42a8d"
+        },
+        {
+          "path": "skills/study-lib-audit/assets/icon.svg",
+          "size_bytes": 420,
+          "sha256": "e9301497fa98ef56aaca7ede0857b9a18dc06c34040f0679c609a6bf49b1d38b"
+        },
+        {
+          "path": "skills/study-lib-audit/references/upstream.md",
+          "size_bytes": 5945,
+          "sha256": "2caf9b0af781d7e047bca936bed5a0d3c26ac3a5b59e6984d1d3ac7b75fe1dc5"
+        },
+        {
+          "path": "skills/study-lib-audit/references/verification-gate.md",
+          "size_bytes": 3385,
+          "sha256": "485b8c7ea3ac6de63cb8dec4061f5d94650b2a71a910f0898472a8fa5ee604af"
+        },
+        {
+          "path": "skills/study-lib-audit/references/workflows.md",
+          "size_bytes": 6531,
+          "sha256": "f9457d32d569c46226a348270046e2ecf0ac0d87cbf820d233c9d2a7edd59998"
+        }
+      ]
+    },
+    {
+      "id": "cz-combine",
+      "status": "current_complete_folder_backup",
+      "source_kind": "github_repository",
+      "source_repository": "joint3256/study-lib",
+      "source_path": "技能/cz-combine",
+      "source_commit": "c9d20dfd8d942e0268a19c60f507fac02660ff0b",
+      "files": [
+        {
+          "path": "skills/cz-combine/SKILL.md",
+          "size_bytes": 12605,
+          "sha256": "8aafbc8c3fb2010d5583c1a0be5e3138c5c50dfe14bdc2f2291e508bcf8e6e0c"
+        },
+        {
+          "path": "skills/cz-combine/references/化学专精.md",
+          "size_bytes": 40982,
+          "sha256": "bc3639c953dd0553599dbf93878fc0eb89ce011eeea66f4b33523d1dad75eabf"
+        },
+        {
+          "path": "skills/cz-combine/references/历史专精.md",
+          "size_bytes": 43017,
+          "sha256": "be7073b66c56ada9a7841af223cd5cd89ecbfbe4e93643b11f7546b7b671b2e4"
+        },
+        {
+          "path": "skills/cz-combine/references/数学专精.md",
+          "size_bytes": 21431,
+          "sha256": "d40b1777dcda4a273f074482338c42ffa9623434f5d5c1d25a577ebe15db33d0"
+        },
+        {
+          "path": "skills/cz-combine/references/物理专精.md",
+          "size_bytes": 37418,
+          "sha256": "c337df8bc949334791736bb084d861f626d14ab7f29b26f9f793d9d87b9700d4"
+        },
+        {
+          "path": "skills/cz-combine/references/知识库检索.md",
+          "size_bytes": 14019,
+          "sha256": "cdc774c6ed47efe223508ccb16c55a7cb18187bea75c7787d57889dd46927c99"
+        },
+        {
+          "path": "skills/cz-combine/references/语文专精.md",
+          "size_bytes": 30840,
+          "sha256": "f81a581301410944cdeccdca1d491a7019ee895fb53d14bd51796490053a018f"
+        },
+        {
+          "path": "skills/cz-combine/references/道法专精.md",
+          "size_bytes": 34957,
+          "sha256": "45582ed37c6b8f72b8832fed16651154be94b2aa50e4a633312d28df80679296"
+        },
+        {
+          "path": "skills/cz-combine/scripts/check_library.py",
+          "size_bytes": 8364,
+          "sha256": "32f759832793ce1236ee36b0e30dfaaf989026c1c6283c7695c4f8887e8793ec"
+        }
+      ]
+    },
+    {
+      "id": "gaoshu1",
+      "status": "current_complete_folder_backup",
+      "source_kind": "github_repository",
+      "source_repository": "joint3256/study-lib",
+      "source_path": "技能/gaoshu1",
+      "source_commit": "c9d20dfd8d942e0268a19c60f507fac02660ff0b",
+      "files": [
+        {
+          "path": "skills/gaoshu1/SKILL.md",
+          "size_bytes": 3339,
+          "sha256": "4e9dcd37331dea2971b89f9a8df8b99bba2d259b2afe80a7065fcdca0fe0a5bf"
+        }
+      ]
+    },
+    {
+      "id": "gaoshu2",
+      "status": "current_complete_folder_backup",
+      "source_kind": "github_repository",
+      "source_repository": "joint3256/study-lib",
+      "source_path": "技能/gaoshu2",
+      "source_commit": "c9d20dfd8d942e0268a19c60f507fac02660ff0b",
+      "files": [
+        {
+          "path": "skills/gaoshu2/SKILL.md",
+          "size_bytes": 3526,
+          "sha256": "cdc41e10319cbaa26223d5d098fd32ff2e32853810a830bd23771869133254d9"
+        }
+      ]
+    },
+    {
+      "id": "tiqu-extractor",
+      "status": "current_complete_folder_backup",
+      "source_kind": "github_repository",
+      "source_repository": "joint3256/study-lib",
+      "source_path": "技能/tiqu-extractor",
+      "source_commit": "c9d20dfd8d942e0268a19c60f507fac02660ff0b",
+      "files": [
+        {
+          "path": "skills/tiqu-extractor/SKILL.md",
+          "size_bytes": 6315,
+          "sha256": "6d0098be839a48cced81606f0df1145cc70c8bb8ea11ea106e7606587a49bc8f"
+        },
+        {
+          "path": "skills/tiqu-extractor/assets/fig_helpers.py",
+          "size_bytes": 4591,
+          "sha256": "c95994ca53d2d6c3b21fe8c0cc314a5c8a02f5bbdfcd893d0370f9a1b23aba73"
+        },
+        {
+          "path": "skills/tiqu-extractor/references/手写与印刷判别清单.md",
+          "size_bytes": 2247,
+          "sha256": "c5ec3d1a31863837067e746cc0fef3e43e3f6eb8ac02cafaccc4267c9ca3d28d"
+        },
+        {
+          "path": "skills/tiqu-extractor/references/提取与输出规范.md",
+          "size_bytes": 2740,
+          "sha256": "d6ff06df0e78eb8dd6b99206e719c30dfa57b2cbc7c549c15ee97bf5d1328628"
+        },
+        {
+          "path": "skills/tiqu-extractor/references/最严格核对清单.md",
+          "size_bytes": 5841,
+          "sha256": "54e2d7535e3ece8df7a903488a05540422641723ab617d179243f6084e571f14"
+        },
+        {
+          "path": "skills/tiqu-extractor/scripts/console_output.py",
+          "size_bytes": 348,
+          "sha256": "db81c4ed284bb6858525889fd907a6bf52e0de10c35c59960c068165a8f37957"
+        },
+        {
+          "path": "skills/tiqu-extractor/scripts/doc_to_outputs.py",
+          "size_bytes": 3692,
+          "sha256": "754f492ea26c7731c29112a19480c9dcc7acf6e97c32473c2bb8abea475e9fe4"
+        },
+        {
+          "path": "skills/tiqu-extractor/scripts/extract_schema.py",
+          "size_bytes": 5220,
+          "sha256": "c2c960f8ed6d9d57d13723a5b84a4c96394fcb7e6f48793f919ea01b7d2aab0e"
+        },
+        {
+          "path": "skills/tiqu-extractor/scripts/make_clean_doc.py",
+          "size_bytes": 5335,
+          "sha256": "62e49977abe1aea1bef2cb231566555d28411dfdd41a247f6d38a094e927ecbc"
+        },
+        {
+          "path": "skills/tiqu-extractor/scripts/verify_docx.py",
+          "size_bytes": 9379,
+          "sha256": "90fcc00833d677bed537e2dacb7e9dda99ab35e7e6226aa8f6b02b0e693fed44"
+        },
+        {
+          "path": "skills/tiqu-extractor/scripts/verify_extract.py",
+          "size_bytes": 10528,
+          "sha256": "3927564b7182939fc55eee4361cf4d99ff6f00c7c9e8c354604bf94491966e65"
+        }
+      ]
+    }
+  ],
+  "historical_archive": {
+    "status": "historical_primary_documents_only_not_installed",
+    "source_file": "来源 A：2026-10-14 豆包历史技能整理（原件私下保留）",
+    "skills": [
+      {
+        "id": "sxwk",
+        "source_line_range": [
+          209,
+          242
+        ],
+        "status": "primary_file_recovered_not_runtime_verified",
+        "missing_dependencies": [],
+        "path": "archive/sxwk/SKILL.original.md",
+        "size_bytes": 2517,
+        "sha256": "6883f182eef3b72814e21abc5719ddee7e42dc5d8d850680bbd1b59b55f4dd0c"
+      },
+      {
+        "id": "czsx",
+        "source_line_range": [
+          251,
+          323
+        ],
+        "status": "primary_file_recovered_not_runtime_verified",
+        "missing_dependencies": [
+          "references/课标知识点地图.md",
+          "references/几何模型库.md",
+          "references/快解与思想方法.md",
+          "references/义务教育数学课程标准2022.pdf"
+        ],
+        "path": "archive/czsx/SKILL.original.md",
+        "size_bytes": 8198,
+        "sha256": "8db5228d0f5de62e9c08a57ddb4e5e46b0ecd9afb1ff9a4d5a44bbbb2edb596a"
+      },
+      {
+        "id": "hs-combine",
+        "source_line_range": [
+          457,
+          515
+        ],
+        "status": "primary_file_recovered_not_runtime_verified",
+        "missing_dependencies": [
+          "references/知识库检索.md",
+          "外置高中知识库"
+        ],
+        "path": "archive/hs-combine/SKILL.original.md",
+        "size_bytes": 6283,
+        "sha256": "3b6da3e89f9f382cd76d9020a9b9b32e4fedff9c8b86ccc8dfb5b601dc2d80bb"
+      }
+    ],
+    "unrecovered": [
+      {
+        "id": "xhs631",
+        "status": "name_and_purpose_only_no_skill_body"
+      }
+    ]
+  },
+  "backup_repository": "joint3256/study-lib",
+  "backup_directory": "personal-skills",
+  "visibility": "public"
+}

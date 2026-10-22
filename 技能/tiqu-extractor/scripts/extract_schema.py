@@ -20,7 +20,7 @@ def question_number(value):
 
 
 def load_extract(path):
-    """返回校验后的副本：题号统一为 '1.'，图片相对 JSON 所在目录定位。"""
+    """返回校验后的副本：统一题号和文本换行，图片相对 JSON 所在目录定位。"""
     source = Path(path).resolve()
     with source.open(encoding="utf-8") as stream:
         data = json.load(stream)
@@ -36,20 +36,24 @@ def validate_extract(data, root):
     def require_text(value, label):
         if not isinstance(value, str) or not value.strip():
             errors.append(label + " 必须为非空字符串")
+            return value
+        # Word 将 CR 与 LF 分别转换为换行；先合并 CRLF，避免多出空行。
+        # 只处理已复制的文字字段，不改写输入 JSON、路径或原有空白行。
+        return value.replace("\r\n", "\n").replace("\r", "\n")
 
     def require_options(value, label):
         if not isinstance(value, list) or not value:
             errors.append(label + " 必须为非空字符串列表")
         else:
             for index, item in enumerate(value):
-                require_text(item, "%s[%d]" % (label, index))
+                value[index] = require_text(item, "%s[%d]" % (label, index))
 
     def require_number(value, label, minimum, inclusive=False):
         if (type(value) not in (int, float) or not math.isfinite(value)
                 or (value < minimum if inclusive else value <= minimum)):
             errors.append(label + (" 必须为非负有限数值" if inclusive else " 必须为正有限数值"))
 
-    require_text(data.get("title"), "title")
+    data["title"] = require_text(data.get("title"), "title")
     blocks = data.get("blocks")
     if not isinstance(blocks, list) or not blocks:
         raise ValueError("\n".join(errors + ["blocks 必须为非空列表，且至少含一道 q 题目"]))
@@ -65,7 +69,7 @@ def validate_extract(data, root):
             errors.append("%s 未知块类型：%r" % (label, typ))
             continue
         if typ in ("section", "q", "para"):
-            require_text(block.get("text"), label + ".text")
+            block["text"] = require_text(block.get("text"), label + ".text")
         if typ == "q":
             question_count += 1
             try:

@@ -85,6 +85,38 @@ class MathExamples(unittest.TestCase):
 
 
 class EvidenceTests(unittest.TestCase):
+    def physics_2023_records(self):
+        return [r for r in evidence.read_records(ROOT/'真题考点/天津')
+                if r['subject'] == '物理' and r['year'] == 2023]
+
+    def test_physics_2023_preserves_circuit_and_measurement_conditions(self):
+        rows = {r['question']: r for r in self.physics_2023_records()}
+        # 原卷第7页第22题全闭合时 R2/R4 被短路，并非四个电阻都参与并联。
+        self.assertIn('R2、R4短路', rows[22]['topic'])
+        self.assertIn('R1、R3并联', rows[22]['topic'])
+        # 第9页第24题是待测的“约30V”，需要用读数求值，不能当准确已知量。
+        self.assertIn('约30V', rows[24]['topic'])
+
+    def test_physics_2023_question_types_and_section_scores(self):
+        rows = self.physics_2023_records()
+        self.assertEqual([r['question'] for r in rows], list(range(1, 26)))
+        groups = ((0, 10, '单选', 30), (10, 13, '多选', 9),
+                  (13, 19, '填空', 24), (19, 25, '综合', 37))
+        for start, end, question_type, score in groups:
+            with self.subTest(question_type=question_type):
+                self.assertEqual([r['question_type'] for r in rows[start:end]],
+                                 [question_type]*(end-start))
+                self.assertEqual(sum(int(r['score']) for r in rows[start:end]), score)
+        self.assertEqual([int(r['score']) for r in rows[19:]], [7, 6, 6, 6, 6, 6])
+
+    def test_physics_2023_has_individual_question_and_answer_evidence(self):
+        rows = self.physics_2023_records()
+        report = evidence.summarize(rows)
+        self.assertEqual(report['已核实记录'], 25)
+        self.assertEqual(report['待核实记录'], 0)
+        self.assertEqual(report['已核实来源类型'], {'第三方原卷转载': 25})
+        self.assertEqual(len({r['evidence'] for r in rows}), 25)
+
     def physics_2022_records(self):
         return [r for r in evidence.read_records(ROOT/'真题考点/天津')
                 if r['subject'] == '物理' and r['year'] == 2022]
@@ -142,7 +174,7 @@ class EvidenceTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         report = json.loads(result.stdout)
         self.assertEqual(report['候选记录总数'], 380)
-        self.assertEqual(report['已核实记录'], 76)
+        self.assertEqual(report['已核实记录'], 101)
 
     def record(self, **changes):
         r=dict(subject='数学',year=2022,question=1,topic='有理数',status='已核实',
@@ -230,13 +262,14 @@ class EvidenceTests(unittest.TestCase):
         records=evidence.read_records(ROOT/'真题考点/天津')
         result=evidence.summarize(records)
         self.assertEqual(result['候选记录总数'],380)
-        self.assertEqual(result['已核实记录'],76)
-        self.assertEqual(result['待核实记录'],304)
+        self.assertEqual(result['已核实记录'],101)
+        self.assertEqual(result['待核实记录'],279)
         self.assertEqual(result['其中原推断记录'],0)
-        self.assertEqual(result['已核实来源类型'],{'第三方解析版':3, '第三方原卷转载':73})
+        self.assertEqual(result['已核实来源类型'],{'第三方解析版':3, '第三方原卷转载':98})
         verified={(r['subject'],r['year'],r['question']) for r in records if r['status']=='已核实'}
         self.assertEqual(verified,{('数学',2022,n) for n in range(1,26)}
                          | {('物理',2022,n) for n in range(1,26)}
+                         | {('物理',2023,n) for n in range(1,26)}
                          | {('化学',2024,n) for n in range(1,27)})
         self.assertEqual(sum(x['候选记录'] for x in result['候选记录核验进度']),380)
         for subject in evidence.SUBJECTS:
